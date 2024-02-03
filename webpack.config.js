@@ -1,5 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ESLintPlugin = require('eslint-webpack-plugin')
 
 module.exports = {
     mode: 'development',
@@ -11,11 +12,9 @@ module.exports = {
         runtimeChunk: 'single',
     },
     entry: {
-        index: './src/index.ts'
+        index: './src/index.ts',
     },
-    plugins: [
-        new HtmlWebpackPlugin({ title: 'Webby' }),
-    ],
+    plugins: [new HtmlWebpackPlugin({ title: 'Webby' }), new ESLintPlugin()],
     output: {
         filename: '[name].[contenthash].js',
         path: path.resolve(__dirname, 'dist'),
