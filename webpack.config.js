@@ -14,7 +14,13 @@ module.exports = {
     entry: {
         index: './src/index.ts',
     },
-    plugins: [new HtmlWebpackPlugin({ title: 'Webby' }), new ESLintPlugin()],
+    plugins: [
+        new HtmlWebpackPlugin({
+            title: 'Webby',
+            template: 'src/index.html',
+        }),
+        new ESLintPlugin(),
+    ],
     output: {
         filename: '[name].[contenthash].js',
         path: path.resolve(__dirname, 'dist'),
@@ -27,16 +33,13 @@ module.exports = {
                 use: 'ts-loader',
                 exclude: /node_modules/,
             },
-        ],
-        loaders: [
             {
                 test: /\.(glsl|vs|fs)$/,
-                loader: 'ts-shader-loader',
+                use: 'ts-shader-loader',
             },
         ],
     },
     resolve: {
         extensions: ['.ts', '.js'],
     },
-    types: ['@webgpu/types'],
 }
