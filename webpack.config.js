@@ -28,8 +28,15 @@ module.exports = {
                 exclude: /node_modules/,
             },
         ],
+        loaders: [
+            {
+                test: /\.(glsl|vs|fs)$/,
+                loader: 'ts-shader-loader',
+            },
+        ],
     },
     resolve: {
         extensions: ['.ts', '.js'],
     },
+    types: ['@webgpu/types'],
 }
