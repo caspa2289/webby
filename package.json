@@ -1,0 +1,21 @@
+{
+  "name": "webby",
+  "version": "0.0.1",
+  "description": "A game engine for the web",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack serve --open"
+  },
+  "keywords": [],
+  "author": "caspa2289",
+  "license": "MIT-Modern-Variant",
+  "devDependencies": {
+    "html-webpack-plugin": "5.6.0",
+    "ts-loader": "9.5.1",
+    "typescript": "5.3.3",
+    "webpack": "5.90.1",
+    "webpack-cli": "5.1.4",
+    "webpack-dev-server": "4.15.1"
+  }
+}
