@@ -31,5 +31,8 @@
     "lint-staged": {
         "*.js": "eslint --cache --fix",
         "*.{js,css,md}": "prettier --write"
+    },
+    "dependencies": {
+        "wgpu-matrix": "2.5.1"
     }
 }
