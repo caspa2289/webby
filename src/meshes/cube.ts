@@ -1,8 +1,3 @@
-export const cubeVertexSize = 4 * 6 // Byte size of one cube vertex.
-export const cubePositionOffset = 0
-export const cubeUVOffset = 4 * 4
-export const cubeVertexCount = 36
-
 // prettier-ignore
 export const cubeVertexArray = new Float32Array([
   // float4 position, float2 uv

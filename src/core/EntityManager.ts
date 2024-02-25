@@ -1,9 +1,10 @@
-import Camera from '../camera'
 import { EntityID, EntityTypes } from './types'
 import { Mesh } from './Mesh'
 import { Transform } from './interfaces/Transform'
 import { GameObject } from './GameObject'
+import { Camera } from './CameraBase'
 
+//FIXME: отвязаться от имплементаций
 export type Entities = Mesh | Camera | Transform | GameObject
 
 export class EntityManager {
@@ -64,5 +65,9 @@ export class EntityManager {
 
     getById(id: EntityID) {
         return this._entities.get(id)
+    }
+
+    clear() {
+        this._entities = new Map()
     }
 }

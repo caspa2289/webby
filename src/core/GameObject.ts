@@ -10,16 +10,17 @@ export abstract class GameObject extends EntityBase {
     private _children: EntityID[] = []
     private _transform: Transform
 
-    constructor(props: GameObjectProps) {
+    constructor(props?: GameObjectProps) {
         super(ENTITY_TYPES.GameObject)
 
         this._transform = new TransformDefault({
-            position: props.position,
-            rotation: props.rotation,
-            scale: props.scale,
+            position: props?.position,
+            rotation: props?.rotation,
+            scale: props?.scale,
         })
     }
 
+    //FIXME: можно добавлять меши из недобавленных геймобджектов, оставить только метод attach
     addChildren(values: Entities[]) {
         values.forEach((item, index) => {
             if (!this._children.includes(item.id)) {
@@ -88,6 +89,14 @@ export abstract class GameObject extends EntityBase {
 
     set localRotation(value) {
         this._transform.rotation = value
+    }
+
+    get childrenIds() {
+        return this._children
+    }
+
+    get transform() {
+        return this._transform
     }
 
     //FIXME: это надо считать не здесь
