@@ -1,12 +1,12 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ESLintPlugin = require('eslint-webpack-plugin')
 
 module.exports = {
     mode: 'development',
     devtool: 'inline-source-map',
     devServer: {
-        static: './dist',
+        static: '/static',
+        historyApiFallback: true,
     },
     optimization: {
         runtimeChunk: 'single',
@@ -14,11 +14,19 @@ module.exports = {
     entry: {
         index: './src/index.ts',
     },
-    plugins: [new HtmlWebpackPlugin({ title: 'Webby' }), new ESLintPlugin()],
+    plugins: [
+        new HtmlWebpackPlugin({
+            title: 'Webby',
+            template: 'src/index.html',
+            inject: true,
+            filename: 'index.html',
+        }),
+    ],
     output: {
         filename: '[name].[contenthash].js',
         path: path.resolve(__dirname, 'dist'),
         clean: true,
+        publicPath: '/',
     },
     module: {
         rules: [
@@ -27,16 +35,17 @@ module.exports = {
                 use: 'ts-loader',
                 exclude: /node_modules/,
             },
-        ],
-        loaders: [
             {
-                test: /\.(glsl|vs|fs)$/,
-                loader: 'ts-shader-loader',
+                test: /\.(glsl|vs|fs|wgsl)$/,
+                use: 'ts-shader-loader',
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
             },
         ],
     },
     resolve: {
         extensions: ['.ts', '.js'],
     },
-    types: ['@webgpu/types'],
 }
