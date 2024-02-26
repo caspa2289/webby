@@ -1,19 +1,21 @@
 import { vec3 } from 'wgpu-matrix'
 import { Webby } from './core/Webby'
-import { GameObject } from './core/GameObject'
+import { GameObject, GameObjectProps } from './core/GameObject'
 import { ObjLoader } from './modules/ObjLoader'
 import { PerspectiveCamera } from './modules/PerspectiveCamera'
 
+type TeapotProps = GameObjectProps
+
 class Teapot extends GameObject {
-    readonly testNumber = 42
+    constructor(props?: TeapotProps) {
+        super(props)
+    }
 
     update(deltaTime: number): void {
         this.transform.rotation = vec3.add(
             this.transform.rotation,
-            vec3.create(0, 1 * deltaTime, 1 * deltaTime)
+            vec3.create(deltaTime, 0, deltaTime)
         )
-
-        console.log(this.testNumber)
     }
 }
 
@@ -27,9 +29,11 @@ const start = async () => {
         canvasHeight: canvas.height,
     })
 
-    const teapot = new Teapot()
+    const teapot = new Teapot({
+        position: vec3.create(0, 0, -4),
+    })
 
-    const cubeMesh = await ObjLoader.loadFromUrl('blerp')
+    const cubeMesh = await ObjLoader.loadFromUrl('todo')
 
     webby.addEntities([teapot, cubeMesh])
     teapot.attachChildren([cubeMesh.id])

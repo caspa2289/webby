@@ -3,8 +3,9 @@ import { TransformDefault } from './TransformDefault'
 import { Transform } from './interfaces/Transform'
 import { ENTITY_TYPES, EntityID } from './types'
 import { Entities } from './EntityManager'
+import { vec3 } from 'wgpu-matrix'
 
-type GameObjectProps = Partial<Transform>
+export type GameObjectProps = Partial<Transform>
 
 export abstract class GameObject extends EntityBase {
     private _children: EntityID[] = []
@@ -45,6 +46,7 @@ export abstract class GameObject extends EntityBase {
         values.forEach((item) => {
             if (!this._children.includes(item)) {
                 this._children.push(item)
+                this._entityManager.getById(item)!.parentId = this._id
             } else {
                 failedList.push(`Failed to attach ${item}`)
             }
@@ -100,20 +102,43 @@ export abstract class GameObject extends EntityBase {
     }
 
     //FIXME: это надо считать не здесь
-    // get worldPosition() {
-    //     let result = this._transform.position
-    //     if (this.parentId) {
-    //         const parentObject = this._entityManager.getById(this.parentId)
-    //         if (parentObject?.worldPosition) {
-    //             result = vec3.add(
-    //                 parentObject.worldPosition,
-    //                 this.localPosition
-    //             )
-    //         }
-    //     }
+    get worldPosition() {
+        let result = this._transform.position
+        if (this.parentId) {
+            const parentObject = this._entityManager.getById(
+                this.parentId
+            ) as GameObject
+            if (parentObject?.worldPosition) {
+                result = vec3.add(
+                    parentObject.worldPosition,
+                    this.localPosition
+                )
+            }
+        }
 
-    //     return result
-    // }
+        return result
+    }
+
+    get worldRotation() {
+        let result = this._transform.rotation
+        if (this.parentId) {
+            const parentObject = this._entityManager.getById(
+                this.parentId
+            ) as GameObject
+            if (parentObject?.worldRotation) {
+                result = vec3.add(
+                    parentObject.worldRotation,
+                    this.worldRotation
+                )
+            }
+        }
+
+        return result
+    }
+
+    get scale() {
+        return this.transform.scale
+    }
 
     abstract update(deltaTime: number): void
 }

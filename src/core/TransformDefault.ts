@@ -3,6 +3,7 @@ import { EntityBase } from './EntityBase'
 import { Transform } from './interfaces/Transform'
 import { ENTITY_TYPES } from './types'
 
+//FIXME: replace separate vecs with a single matrix as in camera.
 export class TransformDefault extends EntityBase implements Transform {
     _rotation: Vec3
     _position: Vec3

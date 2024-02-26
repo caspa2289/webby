@@ -3,6 +3,7 @@ import { CameraBase, CameraProps } from '../core/CameraBase'
 
 export type PerspectiveCameraProps = CameraProps
 
+//TODO: добавить крен
 export class PerspectiveCamera extends CameraBase {
     constructor(props: PerspectiveCameraProps) {
         super(props)

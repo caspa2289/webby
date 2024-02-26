@@ -1,4 +1,4 @@
-import { Mat4, mat4 } from 'wgpu-matrix'
+import { Mat4, mat4, vec3 } from 'wgpu-matrix'
 import { Entities, EntityManager } from './EntityManager'
 import { State } from './State'
 import shader from '../shaders/test.wgsl'
@@ -12,6 +12,7 @@ import { ENTITY_TYPES } from './types'
 import { GameObject } from './GameObject'
 import { Mesh } from './Mesh'
 import { Camera } from './CameraBase'
+import { Renderer } from './Renderer'
 
 export class Webby {
     private static _instance?: Webby
@@ -25,6 +26,7 @@ export class Webby {
     private _context?: GPUCanvasContext | null
     private _elapsedTime: number = 0
     private _previousTime: number = 0
+    //FIXME: это всё надо перенести в renderer
     private _pipeline?: GPURenderPipeline
     private _depthTexture?: GPUTexture
     private _uniformBuffer?: GPUBuffer
@@ -44,6 +46,10 @@ export class Webby {
 
     public static getInstance() {
         return Webby._instance
+    }
+
+    get context() {
+        return this._context
     }
 
     get camera() {
@@ -164,11 +170,6 @@ export class Webby {
         this._elapsedTime = time
         const dt = this.deltaTime / 1000
 
-        const modelViewProjection = mat4.multiply(
-            this._camera.projectionMatrix,
-            this._camera.update(dt)
-        ) as Float32Array
-
         const gameObjects = this._entityManager.getAllByTypes([
             ENTITY_TYPES.GameObject,
         ]) as GameObject[]
@@ -182,30 +183,7 @@ export class Webby {
                 .getByIds(gameObject.childrenIds)
                 .filter((item) => item?.type === ENTITY_TYPES.Mesh) as Mesh[]
 
-            meshes.forEach((mesh) => {
-                this._device!.queue.writeBuffer(
-                    this._uniformBuffer!,
-                    0,
-                    modelViewProjection.buffer,
-                    modelViewProjection.byteOffset,
-                    modelViewProjection.byteLength
-                )
-
-                //@ts-ignore
-                mesh.renderPassDescriptor.colorAttachments[0].view =
-                    this._context!.getCurrentTexture().createView()
-
-                const commandEncoder = this._device!.createCommandEncoder()
-                const passEncoder = commandEncoder.beginRenderPass(
-                    mesh.renderPassDescriptor
-                )
-                passEncoder.setPipeline(this._pipeline!)
-                passEncoder.setBindGroup(0, mesh.uniformBindGroup)
-                passEncoder.setVertexBuffer(0, mesh.vertexBuffer)
-                passEncoder.draw(mesh.vertexCount)
-                passEncoder.end()
-                this._device!.queue.submit([commandEncoder.finish()])
-            })
+            Renderer.render(meshes, gameObject, this)
 
             gameObject.update(dt)
         })
