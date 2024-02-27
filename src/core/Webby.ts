@@ -170,6 +170,8 @@ export class Webby {
         this._elapsedTime = time
         const dt = this.deltaTime / 1000
 
+        this.camera!.update(dt)
+
         const gameObjects = this._entityManager.getAllByTypes([
             ENTITY_TYPES.GameObject,
         ]) as GameObject[]

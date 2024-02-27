@@ -10,7 +10,7 @@ export class Renderer {
         const gameObjectPosition = gameObject.worldPosition
         const gameObjectRotation = gameObject.worldRotation
 
-        mat4.copy(engine.camera!.matrix, viewMatrix)
+        mat4.copy(engine.camera!.view, viewMatrix)
         mat4.translate(viewMatrix, gameObjectPosition, viewMatrix)
         mat4.rotate(
             viewMatrix,

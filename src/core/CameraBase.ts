@@ -5,6 +5,7 @@ import { Entity } from './interfaces/Entity'
 export interface Camera extends Entity {
     update(delta_time: number): Mat4
     matrix: Mat4 // This is the inverse of the view matrix.
+    view: Mat4
     right: Vec4
     up: Vec4
     back: Vec4
