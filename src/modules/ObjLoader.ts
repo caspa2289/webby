@@ -1,12 +1,6 @@
 import { Mesh } from '../core/Mesh'
 import { Webby } from '../core/Webby'
 import { cubeVertexArray as vertexArray } from '../meshes/cube'
-//FIXME
-//@ts-ignore
-import texture from '../cubetexture.jpg'
-
-const Texture = new Image()
-Texture.src = texture
 
 export class ObjLoader {
     //FIXME: remove mocks
@@ -24,6 +18,9 @@ export class ObjLoader {
         if (!webby.device) {
             throw new Error('GPU device is inaccessible')
         }
+
+        const Texture = new Image()
+        Texture.src = 'static/images/cubetexture.jpg'
 
         const imageBitmap = await createImageBitmap(Texture)
 
