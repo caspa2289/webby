@@ -9,7 +9,7 @@ export type GameObjectProps = Partial<Transform>
 
 export abstract class GameObject extends EntityBase {
     private _children: EntityID[] = []
-    private _transform: Transform
+    protected _transform: Transform
 
     constructor(props?: GameObjectProps) {
         super(ENTITY_TYPES.GameObject)
@@ -46,7 +46,7 @@ export abstract class GameObject extends EntityBase {
         values.forEach((item) => {
             if (!this._children.includes(item)) {
                 this._children.push(item)
-                this._entityManager.getById(item)!.parentId = this._id
+                this._entityManager.getById(item)!.parentId = this.id
             } else {
                 failedList.push(`Failed to attach ${item}`)
             }
@@ -103,7 +103,7 @@ export abstract class GameObject extends EntityBase {
 
     //FIXME: это надо считать не здесь
     get worldPosition() {
-        let result = this._transform.position
+        let result = this.localPosition
         if (this.parentId) {
             const parentObject = this._entityManager.getById(
                 this.parentId
@@ -120,7 +120,7 @@ export abstract class GameObject extends EntityBase {
     }
 
     get worldRotation() {
-        let result = this._transform.rotation
+        let result = this.localRotation
         if (this.parentId) {
             const parentObject = this._entityManager.getById(
                 this.parentId
@@ -128,7 +128,7 @@ export abstract class GameObject extends EntityBase {
             if (parentObject?.worldRotation) {
                 result = vec3.add(
                     parentObject.worldRotation,
-                    this.worldRotation
+                    this.localRotation
                 )
             }
         }

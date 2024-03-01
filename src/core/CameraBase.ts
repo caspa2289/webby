@@ -1,15 +1,14 @@
-import { mat4, Mat4, Vec3, vec3, Vec4 } from 'wgpu-matrix'
+import { Mat3, mat4, Mat4, Vec3, vec3, Vec4 } from 'wgpu-matrix'
 import { ENTITY_TYPES } from './types'
-import { Entity } from './interfaces/Entity'
+import { GameObject, GameObjectProps } from './GameObject'
 
-export interface Camera extends Entity {
+export interface Camera extends GameObject {
     update(delta_time: number): Mat4
-    matrix: Mat4 // This is the inverse of the view matrix.
+    matrix: Mat3 // This is the inverse of the view matrix.
     view: Mat4
     right: Vec4
     up: Vec4
     back: Vec4
-    position: Float32Array
     aspectRatio: number
     zFar: number
     zNear: number
@@ -17,23 +16,19 @@ export interface Camera extends Entity {
 }
 
 export interface CameraProps
-    extends Partial<Pick<Camera, 'zFar' | 'zNear' | 'position'>> {
+    extends Partial<Pick<Camera, 'zFar' | 'zNear'>>,
+        GameObjectProps {
     canvasWidth: number
     canvasHeight: number
 }
 
-export abstract class CameraBase implements Camera {
-    private readonly _id = String(Math.random())
-    private readonly _type = ENTITY_TYPES.Camera
+export abstract class CameraBase extends GameObject implements Camera {
     private readonly _view = mat4.create()
 
-    private _matrix = new Float32Array([
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-    ])
+    private _matrix = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0])
     private _right = new Float32Array(this._matrix.buffer, 4 * 0, 4)
     private _up = new Float32Array(this._matrix.buffer, 4 * 4, 4)
     private _back = new Float32Array(this._matrix.buffer, 4 * 8, 4)
-    private _position = new Float32Array(this._matrix.buffer, 4 * 12, 4)
 
     private _zFar: number
     private _zNear: number
@@ -47,6 +42,7 @@ export abstract class CameraBase implements Camera {
         canvasWidth,
         canvasHeight,
     }: CameraProps) {
+        super({ type: ENTITY_TYPES.Camera, position })
         this._zFar = zFar ?? 1000
         this._zNear = zNear ?? 0.1
         this._aspectRatio = canvasWidth / canvasHeight
@@ -56,9 +52,6 @@ export abstract class CameraBase implements Camera {
             this._zNear,
             this._zFar
         )
-        if (position) {
-            this._position = position
-        }
     }
 
     get aspectRatio() {
@@ -77,20 +70,12 @@ export abstract class CameraBase implements Camera {
         return this._projectionMatrix
     }
 
-    get id() {
-        return this._id
-    }
-
-    get type() {
-        return this._type
-    }
-
     get matrix() {
-        return this._matrix
+        return mat4.create(...this._matrix, ...this.worldPosition, 1)
     }
 
     set matrix(mat: Mat4) {
-        mat4.copy(mat, this._matrix)
+        mat4.copy([...mat.slice(0, 12), ...this.worldPosition, 1], this._matrix)
     }
 
     get view() {
@@ -123,14 +108,6 @@ export abstract class CameraBase implements Camera {
 
     set back(vec: Vec3) {
         vec3.copy(vec, this._back)
-    }
-
-    get position() {
-        return this._position
-    }
-
-    set position(vec: Float32Array) {
-        vec3.copy(vec, this._position)
     }
 
     abstract update(delta_time: number): Mat4

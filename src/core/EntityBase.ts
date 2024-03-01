@@ -4,8 +4,8 @@ import { EntityID, EntityTypes } from './types'
 
 export class EntityBase implements Entity {
     //FIXME: uuid
-    readonly _id: string = String(Math.random())
-    readonly _type: EntityTypes
+    private readonly _id: string = String(Math.random())
+    private readonly _type: EntityTypes
     private _parentId?: EntityID
     protected _entityManager = new EntityManager()
 

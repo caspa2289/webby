@@ -13,10 +13,10 @@ export class PerspectiveCamera extends CameraBase {
 
     constructor(props: PerspectiveCameraProps) {
         super(props)
-        this.position =
-            props.position ?? (vec3.create(0, 0, -5) as Float32Array)
         const target = props.target ?? vec3.create(0, 0, 0)
-        const forward = vec3.normalize(vec3.sub(target, this.position))
+        const forward = vec3.normalize(
+            vec3.sub(target, this.transform.position)
+        )
         this._recalculateAngles(forward)
     }
 

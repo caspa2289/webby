@@ -3,6 +3,7 @@ import { Webby } from './core/Webby'
 import { GameObject, GameObjectProps } from './core/GameObject'
 import { ObjLoader } from './modules/ObjLoader'
 import { PerspectiveCamera } from './modules/PerspectiveCamera'
+import { FirstPersonController } from './modules/FirstPersonController'
 
 type TeapotProps = GameObjectProps
 
@@ -12,10 +13,10 @@ class Teapot extends GameObject {
     }
 
     update(deltaTime: number): void {
-        this.transform.rotation = vec3.add(
-            this.transform.rotation,
-            vec3.create(deltaTime, 0, deltaTime)
-        )
+        // this.transform.rotation = vec3.add(
+        //     this.transform.rotation,
+        //     vec3.create(deltaTime, 0, deltaTime)
+        // )
     }
 }
 
@@ -24,9 +25,15 @@ const start = async () => {
     const webby = new Webby(canvas)
     await webby.init()
 
-    webby.camera = new PerspectiveCamera({
+    const camera = new PerspectiveCamera({
         canvasWidth: canvas.width,
         canvasHeight: canvas.height,
+    })
+
+    webby.camera = camera
+
+    const fpsController = new FirstPersonController({
+        inputConfig: { canvas },
     })
 
     const teapot = new Teapot({
@@ -35,7 +42,10 @@ const start = async () => {
 
     const cubeMesh = await ObjLoader.loadFromUrl('todo')
 
-    webby.addEntities([teapot, cubeMesh])
+    webby.addEntities([camera, teapot, cubeMesh, fpsController])
+
+    fpsController.camera = camera
+    fpsController.attachChildren([camera.id])
     teapot.attachChildren([cubeMesh.id])
 }
 

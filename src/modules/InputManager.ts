@@ -8,6 +8,13 @@ export type InputManagerProps = Partial<{
     canvas: HTMLCanvasElement
 }>
 
+type AnalogState = {
+    deltaX: number
+    deltaY: number
+    isPointerDown: boolean
+    isContextClicked: boolean
+}
+
 const defaultConfig: KeyboardInputConfig = {
     KeyA: 'MoveLeft',
     ArrowLeft: 'MoveLeft',
@@ -20,7 +27,7 @@ const defaultConfig: KeyboardInputConfig = {
 }
 
 //TODO: поддержка мультитача
-const defaultAnalogState = {
+const defaultAnalogState: AnalogState = {
     deltaX: 0,
     deltaY: 0,
     isPointerDown: false,
@@ -30,13 +37,13 @@ const defaultAnalogState = {
 export class InputManager {
     private _config: KeyboardInputConfig
     private _state: Record<string, boolean>
-    private _analogState: Record<string, number | boolean | string>
+    private _analogState: AnalogState
     private _canvas: HTMLCanvasElement | null = null
 
     constructor(props?: InputManagerProps) {
-        this._config = props?.config ?? defaultConfig
+        this._config = props?.config ?? { ...defaultConfig }
         this._state = {}
-        this._analogState = defaultAnalogState
+        this._analogState = { ...defaultAnalogState }
         this._canvas = props?.canvas ?? null
         this._init()
     }
@@ -85,7 +92,18 @@ export class InputManager {
     }
 
     private _addPointerListeners(canvas: HTMLCanvasElement) {
-        canvas.addEventListener('pointerdown', () => {})
+        canvas.addEventListener('pointerdown', () => {
+            this._analogState.isPointerDown = true
+        })
+
+        canvas.addEventListener('pointerup', () => {
+            this._analogState.isPointerDown = false
+        })
+
+        canvas.addEventListener('pointermove', (evt) => {
+            this._analogState.deltaX = evt.movementX
+            this._analogState.deltaY = evt.movementY
+        })
     }
 
     isActive(eventName: string): boolean {
@@ -95,7 +113,10 @@ export class InputManager {
         return this._state[eventName]
     }
 
-    get pointer() {
-        return this._analogState
+    get pointerStateSnapshot() {
+        const res = { ...this._analogState }
+        this._analogState = { ...this._analogState, deltaX: 0, deltaY: 0 }
+
+        return res
     }
 }
