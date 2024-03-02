@@ -1,4 +1,3 @@
-import { Mat4, mat4, vec3 } from 'wgpu-matrix'
 import { Entities, EntityManager } from './EntityManager'
 import { State } from './State'
 import shader from '../shaders/test.wgsl'
@@ -13,6 +12,7 @@ import { GameObject } from './GameObject'
 import { Mesh } from './Mesh'
 import { Camera } from './CameraBase'
 import { Renderer } from './Renderer'
+import { AudioListenerImpl } from './audio/AudioListenerImpl'
 
 export class Webby {
     private static _instance?: Webby
@@ -26,6 +26,7 @@ export class Webby {
     private _context?: GPUCanvasContext | null
     private _elapsedTime: number = 0
     private _previousTime: number = 0
+    private _audioListener?: AudioListenerImpl
     //FIXME: это всё надо перенести в renderer
     private _pipeline?: GPURenderPipeline
     private _depthTexture?: GPUTexture
@@ -82,6 +83,14 @@ export class Webby {
 
     addEntities(objects: Entities[]) {
         this._entityManager.addEntities(objects)
+    }
+
+    get audioListener() {
+        return this._audioListener
+    }
+
+    set audioListener(value) {
+        this._audioListener = value
     }
 
     async init() {
@@ -176,6 +185,11 @@ export class Webby {
             ENTITY_TYPES.GameObject,
         ]) as GameObject[]
 
+        const audio = this._entityManager.getAllByTypes([
+            ENTITY_TYPES.AudioSource,
+            ENTITY_TYPES.AudioListener,
+        ]) as AudioListenerImpl[]
+
         if (!this._device || !this.pipeline || !this._uniformBuffer) {
             throw new Error('GPU is inaccessible')
         }
@@ -188,6 +202,10 @@ export class Webby {
             Renderer.render(meshes, gameObject, this)
 
             gameObject.update(dt)
+        })
+
+        audio.forEach((item) => {
+            item.update(dt)
         })
 
         requestAnimationFrame(this._tick)

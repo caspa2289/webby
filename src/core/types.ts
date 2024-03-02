@@ -4,6 +4,8 @@ export enum ENTITY_TYPES {
     Entity = 'Entity',
     Camera = 'Camera',
     Transform = 'Transform',
+    AudioSource = 'AudioSource',
+    AudioListener = 'AudioListener',
 }
 
 export type EntityTypes = keyof typeof ENTITY_TYPES

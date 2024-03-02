@@ -4,6 +4,9 @@ import { GameObject, GameObjectProps } from './core/GameObject'
 import { ObjLoader } from './modules/ObjLoader'
 import { PerspectiveCamera } from './modules/PerspectiveCamera'
 import { FirstPersonController } from './modules/FirstPersonController'
+import { AudioListenerImpl } from './core/audio/AudioListenerImpl'
+import { AudioItem } from './core/audio/AudioItem'
+import { AudioSource } from './core/audio/AudioSource'
 
 type TeapotProps = GameObjectProps
 
@@ -30,7 +33,14 @@ const start = async () => {
         canvasHeight: canvas.height,
     })
 
+    const testAudio = new AudioItem({
+        audioURL: '/static/audio/test.mp3',
+    })
+    const audioListener = new AudioListenerImpl({ camera })
+    const audioSource = new AudioSource({ audioItem: testAudio })
+
     webby.camera = camera
+    webby.audioListener = audioListener
 
     const fpsController = new FirstPersonController({
         inputConfig: { canvas },
@@ -42,11 +52,20 @@ const start = async () => {
 
     const cubeMesh = await ObjLoader.loadFromUrl('todo')
 
-    webby.addEntities([camera, teapot, cubeMesh, fpsController])
+    webby.addEntities([
+        camera,
+        teapot,
+        cubeMesh,
+        fpsController,
+        audioListener,
+        audioSource,
+    ])
 
     fpsController.camera = camera
     fpsController.attachChildren([camera.id])
-    teapot.attachChildren([cubeMesh.id])
+    teapot.attachChildren([cubeMesh.id, audioSource.id])
+
+    //audioSource.play()
 }
 
 start()
