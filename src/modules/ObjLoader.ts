@@ -19,10 +19,10 @@ export class ObjLoader {
             throw new Error('GPU device is inaccessible')
         }
 
-        const Texture = new Image()
-        Texture.src = 'static/images/cubetexture.jpg'
+        const image = await fetch('static/images/cubetexture.jpg')
+        const blob = await image.blob()
 
-        const imageBitmap = await createImageBitmap(Texture)
+        const imageBitmap = await createImageBitmap(blob)
 
         const texture = webby.device.createTexture({
             size: [imageBitmap.width, imageBitmap.height, 1],
