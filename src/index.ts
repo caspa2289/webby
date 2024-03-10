@@ -7,6 +7,7 @@ import { FirstPersonController } from './modules/FirstPersonController'
 import { AudioListenerImpl } from './core/audio/AudioListenerImpl'
 import { AudioItem } from './core/audio/AudioItem'
 import { AudioSource } from './core/audio/AudioSource'
+import { GLTFLoader } from './modules/GLTFLoader'
 
 type TeapotProps = GameObjectProps
 
@@ -51,6 +52,8 @@ const start = async () => {
     })
 
     const cubeMesh = await ObjLoader.loadFromUrl('todo')
+
+    const ass = await GLTFLoader.loadFromURL('static/models/test/test.glb')
 
     webby.addEntities([
         camera,
