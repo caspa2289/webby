@@ -1,25 +1,34 @@
-struct Uniforms {
-  modelViewProjectionMatrix : mat4x4<f32>,
-}
+alias float4 = vec4<f32>;
+alias float3 = vec3<f32>;
 
-@group(0) @binding(0) var<uniform> uniforms : Uniforms;
-@group(0) @binding(1) var mySampler: sampler;
-@group(0) @binding(2) var myTexture: texture_2d<f32>;
+struct VertexInput {
+    @location(0) position: float3,
+};
 
 struct VertexOutput {
-  @builtin(position) Position : vec4f,
-  @location(0) fragUV : vec2f,
-}
+    @builtin(position) position: float4,
+    @location(0) world_pos: float3,
+};
+
+struct ViewParams {
+    view_proj: mat4x4<f32>,
+};
+
+@group(0) @binding(0)
+var<uniform> view_params: ViewParams;
 
 @vertex
-fn vertex_main(
-  @location(0) position : vec4f,
-  @location(1) uv : vec2f
-) -> VertexOutput {
-  return VertexOutput(uniforms.modelViewProjectionMatrix * position, uv);
-}
+fn vertex_main(vert: VertexInput) -> VertexOutput {
+    var out: VertexOutput;
+    out.position = view_params.view_proj * float4(vert.position, 1.0);
+    out.world_pos = vert.position.xyz;
+    return out;
+};
 
 @fragment
-fn fragment_main(@location(0) fragUV: vec2f) -> @location(0) vec4f {
-  return textureSample(myTexture, mySampler, fragUV);
+fn fragment_main(in: VertexOutput) -> @location(0) float4 {
+    let dx = dpdx(in.world_pos);
+    let dy = dpdy(in.world_pos);
+    let n = normalize(cross(dx, dy));
+    return float4((n + 1.0) * 0.5, 1.0);
 }

@@ -2,6 +2,7 @@ import { GameObject } from './GameObject'
 import { Mesh } from './Mesh'
 import { mat4, vec3 } from 'wgpu-matrix'
 import { Webby } from './Webby'
+import shader from '../shaders/test.wgsl'
 
 export class Renderer {
     static render(meshes: Mesh[], gameObject: GameObject, engine: Webby) {
@@ -38,30 +39,61 @@ export class Renderer {
             viewMatrix
         ) as Float32Array
 
-        meshes.forEach((mesh) => {
-            engine.device!.queue.writeBuffer(
-                engine.uniformBuffer!,
-                0,
-                modelViewProjection.buffer,
-                modelViewProjection.byteOffset,
-                modelViewProjection.byteLength
-            )
+        const commandEncoder = engine.device!.createCommandEncoder()
 
+        const passEncoder = commandEncoder.beginRenderPass({
             //@ts-ignore
-            mesh.renderPassDescriptor.colorAttachments[0].view = engine
-                .context!.getCurrentTexture()
-                .createView()
+            colorAttachments: [
+                {
+                    view: engine.context?.getCurrentTexture().createView(), // Assigned later
+                    clearValue: { r: 0.5, g: 0.5, b: 0.5, a: 1.0 },
+                    loadOp: 'clear',
+                    storeOp: 'store',
+                },
+            ],
+            depthStencilAttachment: {
+                view: engine.depthTexture!.createView(),
+                depthClearValue: 1.0,
+                depthLoadOp: 'clear',
+                depthStoreOp: 'store',
+            },
+        })
 
-            const commandEncoder = engine.device!.createCommandEncoder()
-            const passEncoder = commandEncoder.beginRenderPass(
-                mesh.renderPassDescriptor
-            )
-            passEncoder.setPipeline(engine.pipeline!)
-            passEncoder.setBindGroup(0, mesh.uniformBindGroup)
-            passEncoder.setVertexBuffer(0, mesh.vertexBuffer)
-            passEncoder.draw(mesh.vertexCount)
-            passEncoder.end()
-            engine.device!.queue.submit([commandEncoder.finish()])
+        const bindGroupLayout = engine.device!.createBindGroupLayout({
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.VERTEX,
+                    buffer: { type: 'uniform' },
+                },
+            ],
+        })
+
+        const uniformBindGroup = engine.device!.createBindGroup({
+            layout: bindGroupLayout,
+            entries: [
+                {
+                    binding: 0,
+                    resource: {
+                        buffer: engine.uniformBuffer!,
+                    },
+                },
+            ],
+        })
+
+        const shaderModule = engine.device!.createShaderModule({ code: shader })
+
+        meshes.forEach((mesh) => {
+            if (!mesh.isPipelineBuilt) {
+                mesh.buildRenderPipeline(
+                    engine.device!,
+                    shaderModule,
+                    engine.canvasFormat!,
+                    'depth24plus-stencil8',
+                    bindGroupLayout
+                )
+            }
+            mesh.render(passEncoder, uniformBindGroup)
         })
     }
 }

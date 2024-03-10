@@ -1,12 +1,12 @@
 import { vec3 } from 'wgpu-matrix'
 import { Webby } from './core/Webby'
 import { GameObject, GameObjectProps } from './core/GameObject'
-import { ObjLoader } from './modules/ObjLoader'
 import { PerspectiveCamera } from './modules/PerspectiveCamera'
 import { FirstPersonController } from './modules/FirstPersonController'
 import { AudioListenerImpl } from './core/audio/AudioListenerImpl'
 import { AudioItem } from './core/audio/AudioItem'
 import { AudioSource } from './core/audio/AudioSource'
+import { GLTFLoader } from './modules/GLTFLoader'
 
 type TeapotProps = GameObjectProps
 
@@ -50,12 +50,13 @@ const start = async () => {
         position: vec3.create(0, 0, -4),
     })
 
-    const cubeMesh = await ObjLoader.loadFromUrl('todo')
+    const testMeshes = await GLTFLoader.loadFromUrl('static/models/fish.glb')
+    const testMesh = testMeshes[0]
 
     webby.addEntities([
         camera,
         teapot,
-        cubeMesh,
+        testMesh,
         fpsController,
         audioListener,
         audioSource,
@@ -63,7 +64,7 @@ const start = async () => {
 
     fpsController.camera = camera
     fpsController.attachChildren([camera.id])
-    teapot.attachChildren([cubeMesh.id, audioSource.id])
+    teapot.attachChildren([testMesh.id, audioSource.id])
 
     //audioSource.play()
 }

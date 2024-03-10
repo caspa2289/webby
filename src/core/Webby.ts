@@ -33,7 +33,7 @@ export class Webby {
     private _uniformBuffer?: GPUBuffer
 
     readonly _dpr = window.devicePixelRatio
-    readonly _canvasFormat = navigator?.gpu?.getPreferredCanvasFormat()
+    private readonly _canvasFormat = navigator?.gpu?.getPreferredCanvasFormat()
 
     constructor(canvas: HTMLCanvasElement) {
         this._canvas = canvas
@@ -43,6 +43,10 @@ export class Webby {
             return Webby._instance
         }
         Webby._instance = this
+    }
+
+    get canvasFormat() {
+        return this._canvasFormat
     }
 
     public static getInstance() {
@@ -107,52 +111,52 @@ export class Webby {
                 alphaMode: 'premultiplied',
             })
 
-            this._pipeline = this._device.createRenderPipeline({
-                layout: 'auto',
-                vertex: {
-                    module: this._device.createShaderModule({
-                        code: shader,
-                    }),
-                    entryPoint: 'vertex_main',
-                    buffers: [
-                        {
-                            arrayStride: VERTEX_SIZE,
-                            attributes: [
-                                {
-                                    shaderLocation: 0,
-                                    offset: POSITION_OFFSET,
-                                    format: 'float32x4',
-                                },
-                                {
-                                    shaderLocation: 1,
-                                    offset: UV_OFFSET,
-                                    format: 'float32x2',
-                                },
-                            ],
-                        },
-                    ],
-                },
-                fragment: {
-                    module: this._device.createShaderModule({
-                        code: shader,
-                    }),
-                    entryPoint: 'fragment_main',
-                    targets: [
-                        {
-                            format: this._canvasFormat,
-                        },
-                    ],
-                },
-                primitive: {
-                    topology: 'triangle-list',
-                    cullMode: 'back',
-                },
-                depthStencil: {
-                    depthWriteEnabled: true,
-                    depthCompare: 'less',
-                    format: 'depth24plus',
-                },
-            })
+            // this._pipeline = this._device.createRenderPipeline({
+            //     layout: 'auto',
+            //     vertex: {
+            //         module: this._device.createShaderModule({
+            //             code: shader,
+            //         }),
+            //         entryPoint: 'vertex_main',
+            //         buffers: [
+            //             {
+            //                 arrayStride: 0,
+            //                 attributes: [
+            //                     {
+            //                         shaderLocation: 0,
+            //                         offset: 0,
+            //                         format: 'float32x4',
+            //                     },
+            //                     // {
+            //                     //     shaderLocation: 1,
+            //                     //     offset: UV_OFFSET,
+            //                     //     format: 'float32x2',
+            //                     // },
+            //                 ],
+            //             },
+            //         ],
+            //     },
+            //     fragment: {
+            //         module: this._device.createShaderModule({
+            //             code: shader,
+            //         }),
+            //         entryPoint: 'fragment_main',
+            //         targets: [
+            //             {
+            //                 format: this._canvasFormat,
+            //             },
+            //         ],
+            //     },
+            //     primitive: {
+            //         topology: 'triangle-list',
+            //         cullMode: 'back',
+            //     },
+            //     depthStencil: {
+            //         depthWriteEnabled: true,
+            //         depthCompare: 'less',
+            //         format: 'depth24plus',
+            //     },
+            // })
 
             this._depthTexture = this._device.createTexture({
                 size: [this._canvas.width, this._canvas.height],
@@ -190,9 +194,9 @@ export class Webby {
             ENTITY_TYPES.AudioListener,
         ]) as AudioListenerImpl[]
 
-        if (!this._device || !this.pipeline || !this._uniformBuffer) {
-            throw new Error('GPU is inaccessible')
-        }
+        // if (!this._device || !this.pipeline || !this._uniformBuffer) {
+        //     throw new Error('GPU is inaccessible')
+        // }
 
         gameObjects.forEach((gameObject) => {
             const meshes = this._entityManager
